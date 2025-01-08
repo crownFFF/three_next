@@ -140,7 +140,7 @@ const Island: React.FC<IslandProps> = ({
       document.removeEventListener("keydown", handleKeyDown)
       document.removeEventListener("keyup", handleKeyUp)
     }
-  }, [gl, handlePointDown, handlePointUp, handlePointMove])
+  }, [gl, handlePointDown, handlePointUp, handlePointMove,handleKeyDown,handleKeyUp])
 
   return (
     <a.group dispose={null} ref={IslandRef} {...props}>
