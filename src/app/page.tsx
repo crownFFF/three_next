@@ -1,101 +1,125 @@
-import Image from "next/image";
+"use client"
+import * as THREE from "three"
+import { Canvas } from "@react-three/fiber"
+import { Suspense, useEffect, useRef, useState } from "react"
+import Loading from "@/components/Loading"
+import Island from "@/models/Island"
+import Sky from "@/models/Sky"
+import Bird from "@/models/Bird"
+import Plane from "@/models/Plane"
+import HomeInfo from "@/components/HomeInfo"
+import Image from "next/image"
+import { soundoff, soundon } from "@/assets/icons"
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const audioRef = useRef<any>(null)
+  const [isPlayMusic, setIsPlayMusic] = useState(false)
+  useEffect(() => {
+    audioRef.current = new Audio("/assets/sakura.mp3")
+    audioRef.current.volume = 0.4
+    audioRef.current.loop = true
+  }, [])
+  useEffect(() => {
+    if (isPlayMusic) {
+      audioRef.current.play()
+    }
+    return () => {
+      audioRef.current.pause()
+    }
+  }, [isPlayMusic])
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+  const [islandSettings, setIslandSettings] = useState({
+    scale: new THREE.Vector3(1, 1, 1),
+    postion: new THREE.Vector3(0, -6.5, -43),
+    retation: new THREE.Euler(0.1, 4.7, 0),
+  })
+  const [planeSettings, setPlaneSettings] = useState({
+    scale: new THREE.Vector3(1, 1, 1),
+    postion: new THREE.Vector3(0, -6.5, -4.3),
+  })
+  const [currentStage, setCurrentStage] = useState<number | null>(1)
+  useEffect(() => {
+    const adjustIslandForSceenSize = () => {
+      const screenScale =
+        window.innerWidth < 768
+          ? new THREE.Vector3(0.9, 0.9, 0.9)
+          : new THREE.Vector3(1, 1, 1)
+      const screenPostion = new THREE.Vector3(0, -6.5, -43)
+      const retation = new THREE.Euler(0.1, 4.7, 0)
+      setIslandSettings({
+        scale: screenScale,
+        postion: screenPostion,
+        retation: retation,
+      })
+    }
+    const adjustPlaneForSceenSize = () => {
+      const screenScale =
+        window.innerWidth < 768
+          ? new THREE.Vector3(1.5, 1.5, 1.5)
+          : new THREE.Vector3(2, 2, 2)
+      const screenPostion = window.innerWidth
+        ? new THREE.Vector3(0, -1.5, 0)
+        : new THREE.Vector3(3, 3, 3)
+      setPlaneSettings({
+        scale: screenScale,
+        postion: screenPostion,
+      })
+    }
+    adjustIslandForSceenSize()
+    adjustPlaneForSceenSize()
+    window.addEventListener("resize", adjustIslandForSceenSize)
+    window.addEventListener("resize", adjustPlaneForSceenSize)
+    return () => {
+      window.removeEventListener("resize", adjustIslandForSceenSize)
+      window.removeEventListener("resize", adjustPlaneForSceenSize)
+    }
+  }, [])
+
+  const [isRotating, setIsRotating] = useState(false)
+
+  return (
+    <section className="w-full h-screen relative">
+      <div className="absolute top-28 left-0 right-0 z-10 flex items-center justify-center">
+        {currentStage && <HomeInfo currentStage={currentStage} />}
+      </div>
+      <Canvas
+        className={`w-full h-screen bg-transparent ${
+          isRotating ? "cursor-grabbing" : "cursor-grab"
+        }`}
+        camera={{ near: 0.1, far: 1000 }}
+      >
+        <directionalLight position={[1, 1, 1]} intensity={2} />
+        <ambientLight intensity={0.5} />
+        <hemisphereLight groundColor="#000000" intensity={1} />
+        <Suspense fallback={<Loading />}>
+          {/* <Bird /> */}
+          <Sky isRotating={isRotating} />
+          <Island
+            position={islandSettings.postion}
+            scale={islandSettings.scale}
+            rotation={islandSettings.retation}
+            isRotating={isRotating}
+            setIsRotating={setIsRotating}
+            setCurrentStage={setCurrentStage}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+          <Plane
+            position={planeSettings.postion}
+            scale={planeSettings.scale}
+            rotation={[0, 20, 0]}
+            isRotating={isRotating}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+        </Suspense>
+      </Canvas>
+      <div className="absolute bottom-2 left-2">
+        <Image
+          src={!isPlayMusic ? soundon : soundoff}
+          alt="sound"
+          className="w-10 h-10 cursor-pointer object-contain"
+          onClick={() => {
+            setIsPlayMusic(!isPlayMusic)
+          }}
+        />
+      </div>
+    </section>
+  )
 }
