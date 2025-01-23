@@ -34,21 +34,21 @@ const renderContent: { [key: number]: JSX.Element } = {
   ),
   2: (
     <InfoBox
-      text="Work with many companies and picked up many skills along the way"
-      link="./about"
+      text="HI"
+      link="./"
       btnText="Learn moer"
     ></InfoBox>
   ),
   3: (
     <InfoBox
-      text="Led multiple project to success over the years, Curious about the impact"
-      link="./project"
+      text="Hello"
+      link="./"
       btnText="Visit my portfolio"
     ></InfoBox>
   ),
   4: (
     <InfoBox
-      text="Need a project done or looking for a dev? i'am just a few keystrokes away"
+      text="Is me"
       link="./contact"
       btnText="Let's talk"
     ></InfoBox>

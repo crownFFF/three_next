@@ -26,7 +26,7 @@ type GLTFResult = GLTF & {
 const Fox: React.FC<FoxProps> = ({ currentAnimation, ...props }) => {
   const group = useRef<THREE.Group>(null!)
   const { nodes, materials, animations } = useGLTF(
-    "/assets/3D/fox.glb"
+    "/assets/3d/fox.glb"
   ) as GLTFResult
   const { actions } = useAnimations(animations, group)
 
