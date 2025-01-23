@@ -22,7 +22,7 @@ const Alert = ({ show, text, type }: AlertProps) => {
         >
           {type === "danger" ? "Failed" : "Success"}
         </p>
-        <p className="mr-2 text-left">{text}</p>
+        <p className="mr-2 text-left">{text}{show}</p>
       </div>
     </div>
   )

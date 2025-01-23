@@ -1,26 +1,33 @@
 "use client"
 import React, { useEffect, useRef } from "react"
 import { useGLTF, useAnimations } from "@react-three/drei"
-import { useFrame, useThree, ThreeElements } from "@react-three/fiber"
+import { ThreeElements } from "@react-three/fiber"
 import * as THREE from "three"
+import { GLTF } from 'three-stdlib'
 
 type FoxProps = ThreeElements["group"] & {
   currentAnimation: string
 }
 
-interface Object3D {
-  nodes?: any
-  isMesh?: any
-  geometry?: any
-  materials?: any
-  animations?: any
+type GLTFResult = GLTF & {
+  nodes: {
+    Object_7: THREE.SkinnedMesh
+    Object_8: THREE.SkinnedMesh
+    Object_9: THREE.SkinnedMesh
+    Object_10: THREE.SkinnedMesh
+    Object_11: THREE.SkinnedMesh
+    GLTF_created_0_rootJoint: THREE.Bone
+  }
+  materials: {
+    PaletteMaterial001: THREE.MeshStandardMaterial
+  }
 }
 
 const Fox: React.FC<FoxProps> = ({ currentAnimation, ...props }) => {
   const group = useRef<THREE.Group>(null!)
   const { nodes, materials, animations } = useGLTF(
     "/assets/3D/fox.glb"
-  ) as Object3D
+  ) as GLTFResult
   const { actions } = useAnimations(animations, group)
 
   useEffect(() => {

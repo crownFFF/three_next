@@ -5,14 +5,13 @@ import { Suspense, useEffect, useRef, useState } from "react"
 import Loading from "@/components/Loading"
 import Island from "@/models/Island"
 import Sky from "@/models/Sky"
-import Bird from "@/models/Bird"
 import Plane from "@/models/Plane"
 import HomeInfo from "@/components/HomeInfo"
 import Image from "next/image"
 import { soundoff, soundon } from "@/assets/icons"
 
 export default function Home() {
-  const audioRef = useRef<any>(null)
+  const audioRef = useRef<HTMLAudioElement|null>(null)
   const [isPlayMusic, setIsPlayMusic] = useState(false)
   useEffect(() => {
     audioRef.current = new Audio("/assets/sakura.mp3")
@@ -21,10 +20,10 @@ export default function Home() {
   }, [])
   useEffect(() => {
     if (isPlayMusic) {
-      audioRef.current.play()
+      audioRef.current!.play()
     }
     return () => {
-      audioRef.current.pause()
+      audioRef.current!.pause()
     }
   }, [isPlayMusic])
 
@@ -92,7 +91,6 @@ export default function Home() {
         <ambientLight intensity={0.5} />
         <hemisphereLight groundColor="#000000" intensity={1} />
         <Suspense fallback={<Loading />}>
-          {/* <Bird /> */}
           <Sky isRotating={isRotating} />
           <Island
             position={islandSettings.postion}

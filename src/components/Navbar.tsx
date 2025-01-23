@@ -10,8 +10,6 @@ const Navbar = () => {
         <span className="text-blue-500">AH</span>
       </Link>
       <nav className="flex text-lg gap-7 font-medium">
-        <Link href="./about">About</Link>
-        <Link href="./projects">Projects</Link>
         <Link href="./contact">Contact</Link>
       </nav>
     </header>

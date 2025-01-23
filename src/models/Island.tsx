@@ -4,18 +4,25 @@ import React, { useRef, useEffect } from "react"
 import { useGLTF } from "@react-three/drei"
 import { useFrame, useThree, ThreeElements } from "@react-three/fiber"
 import { a } from "@react-spring/three"
-
+import { GLTF } from "three-stdlib"
 type IslandProps = ThreeElements["group"] & {
   isRotating: boolean
   setIsRotating: React.Dispatch<React.SetStateAction<boolean>>
-  setCurrentStage: React.Dispatch<React.SetStateAction<number|null>>
+  setCurrentStage: React.Dispatch<React.SetStateAction<number | null>>
 }
-interface Object3D{
-  nodes?: any,
-  isMesh?: any,
-  geometry?: any,
-  materials?: any,
-  animations?:any
+type GLTFResult = GLTF & {
+  nodes: {
+    polySurface944_tree_body_0: THREE.Mesh
+    polySurface945_tree1_0: THREE.Mesh
+    polySurface946_tree2_0: THREE.Mesh
+    polySurface947_tree1_0: THREE.Mesh
+    polySurface948_tree_body_0: THREE.Mesh
+    polySurface949_tree_body_0: THREE.Mesh
+    pCube11_rocks1_0: THREE.Mesh
+  }
+  materials: {
+    PaletteMaterial001: THREE.MeshStandardMaterial
+  }
 }
 
 const Island: React.FC<IslandProps> = ({
@@ -25,7 +32,7 @@ const Island: React.FC<IslandProps> = ({
   ...props
 }) => {
   const IslandRef = useRef<THREE.Group>(null!)
-  const { nodes, materials } = useGLTF("/assets/3D/island.glb") as Object3D
+  const { nodes, materials } = useGLTF("/assets/3D/island.glb") as GLTFResult
 
   const { gl, viewport } = useThree()
 
@@ -33,50 +40,6 @@ const Island: React.FC<IslandProps> = ({
   const rotationSpeed = useRef(0)
   const dampingFact0r = 0.95
 
-  const handlePointDown = (e: any) => {
-    e.stopPropagation()
-    e.preventDefault()
-    setIsRotating(true)
-
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX
-    lastX.current = clientX
-  }
-
-  const handlePointUp = (e: any) => {
-    e.stopPropagation()
-    e.preventDefault()
-    setIsRotating(false)
-  }
-
-  const handlePointMove = (e: any) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (isRotating) {
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX
-      const delta = (clientX - lastX.current) / viewport.width
-      IslandRef.current.rotation.y += delta * 0.01 * Math.PI
-      lastX.current = clientX
-      rotationSpeed.current = delta * 0.01 * Math.PI
-    }
-  }
-
-  const handleKeyDown = (e: any) => {
-    if (e.key === "ArrowLeft") {
-      if (!isRotating) setIsRotating(true)
-      IslandRef.current.rotation.y += 0.01 * Math.PI
-      rotationSpeed.current = .0125
-    } else if (e.key === "ArrowRight") {
-      if (!isRotating) setIsRotating(true)
-      IslandRef.current.rotation.y -= 0.01 * Math.PI
-      rotationSpeed.current = -.0125
-    }
-  }
-
-  const handleKeyUp = (e: any) => {
-    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-      setIsRotating(false)
-    }
-  }
 
   useFrame(() => {
     if (!isRotating) {
@@ -127,6 +90,57 @@ const Island: React.FC<IslandProps> = ({
   })
 
   useEffect(() => {
+    const handlePointDown = (e: MouseEvent | TouchEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+      setIsRotating(true)
+  
+      let clientX: number
+      if ("touches" in e) {
+        clientX = e.touches[0].clientX
+      } else {
+        clientX = e.clientX
+      }
+      lastX.current = clientX
+    }
+    const handlePointUp = (e: MouseEvent | TouchEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+      setIsRotating(false)
+    }
+    const handlePointMove = (e: MouseEvent | TouchEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+      if (isRotating) {
+      let clientX: number
+        if('touches' in e){
+          clientX = e.touches[0].clientX
+        }else{
+          clientX = e.clientX
+        }
+        const delta = (clientX - lastX.current) / viewport.width
+        IslandRef.current.rotation.y += delta * 0.01 * Math.PI
+        lastX.current = clientX
+        rotationSpeed.current = delta * 0.01 * Math.PI
+      }
+    }
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        if (!isRotating) setIsRotating(true)
+        IslandRef.current.rotation.y += 0.01 * Math.PI
+        rotationSpeed.current = 0.0125
+      } else if (e.key === "ArrowRight") {
+        if (!isRotating) setIsRotating(true)
+        IslandRef.current.rotation.y -= 0.01 * Math.PI
+        rotationSpeed.current = -0.0125
+      }
+    }
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+        setIsRotating(false)
+      }
+    }
+  
     const canvas = gl.domElement
     canvas.addEventListener("pointerdown", handlePointDown)
     canvas.addEventListener("pointerup", handlePointUp)
@@ -140,7 +154,7 @@ const Island: React.FC<IslandProps> = ({
       document.removeEventListener("keydown", handleKeyDown)
       document.removeEventListener("keyup", handleKeyUp)
     }
-  }, [gl, handlePointDown, handlePointUp, handlePointMove,handleKeyDown,handleKeyUp])
+  }, [gl,isRotating, setIsRotating, viewport.width])
 
   return (
     <a.group dispose={null} ref={IslandRef} {...props}>

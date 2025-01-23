@@ -9,7 +9,7 @@ const Bird = () => {
   const { actions } = useAnimations(animations, birdRef)
   useEffect(() => {
     actions["Take 001"]?.play()
-  }, [])
+  }, [actions])
   useFrame(({ clock, camera }) => {
     // update the y position simulate the flight moving in a sin wave
     birdRef.current.position.y = Math.sin(clock.elapsedTime) * 0.2 + 2
