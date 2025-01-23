@@ -32,7 +32,7 @@ const Island: React.FC<IslandProps> = ({
   ...props
 }) => {
   const IslandRef = useRef<THREE.Group>(null!)
-  const { nodes, materials } = useGLTF("/assets/3D/island.glb") as GLTFResult
+  const { nodes, materials } = useGLTF("/assets/3d/island.glb") as GLTFResult
 
   const { gl, viewport } = useThree()
 
